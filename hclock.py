@@ -21,6 +21,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import sys
 import time
+import urllib.request
 
 class Clock(QLabel):
     def __init__(self, parent=None):
@@ -42,6 +43,29 @@ class Clock(QLabel):
             self.setText(time.strftime("%H:%M:%S", now))
         else:
             self.setText(time.strftime("%H:%M", now))
+
+class MetarList(QLabel):
+    def __init__(self, station_list, timeout = 10000, parent=None):
+        super(MetarList, self).__init__(parent)
+        # self.stations = []
+        # for station in station_list:
+
+        self.stationList = station_list
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.setNext)
+        self.timer.start(timeout)
+        self.nextIndex = 0
+        self.setNext()
+
+    def setNext(self):
+        link = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{}.TXT".format(self.stationList[self.nextIndex])
+        f = urllib.request.urlopen(link)
+        lines = f.readlines()
+        self.setText(lines[1].decode())
+        self.nextIndex += 1
+        if self.nextIndex == len(self.stationList):
+            self.nextIndex = 0
 
 
 class Main(QMainWindow):
@@ -79,7 +103,7 @@ class Main(QMainWindow):
         self.label2.setText(time.strftime("GMT"))
         self.vright.addWidget(self.label2)
 
-        palette = QPalette()
+
         self.clockFont = QFont("DSEG7 Classic Mini", 200, QFont.Bold)
 
         self.clock1 = Clock()
@@ -94,16 +118,26 @@ class Main(QMainWindow):
         self.clock2.gmt = True
         self.vright.addWidget(self.clock2)
 
+        self.monthFont = QFont("FreeMono", 100, QFont.Bold)
+
+        self.labelDate = QLabel()
+        self.labelDate.setStyleSheet("background-color: rgba(255,255,255,0%); color : blue;")
+        self.labelDate.setFont(self.monthFont)
+        self.labelDate.setAlignment(Qt.AlignCenter)
+        self.labelDate.setText(time.strftime("%B %d, %Y"))
+        self.vout.addWidget(self.labelDate)
+        self.spacerItemMonth = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.vout.addItem(self.spacerItemMonth)
+
         self.metarFont = QFont("FreeMono", 70, QFont.Bold)
 
-        self.labelMetar = QLabel()
-        self.labelMetar.setStyleSheet("background-color: rgba(255,255,255,0%)")
-        self.labelMetar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        self.labelMetar.setFont(self.metarFont)
-        self.labelMetar.setAlignment(Qt.AlignCenter)
-        self.labelMetar.setWordWrap(True)
-        self.labelMetar.setText("KCLL 091753Z 17008KT 7SM -RA OVC020 20/18 A3022 RMK AO2 SLP231 P0002 60002 T02000178 10200 20183 50006  AO2 SLP231 P0002 60002 T02000178 10200 20183 50006")
-        self.vout.addWidget(self.labelMetar)
+        self.metar = MetarList(["KDWH", "KCLL", "KIAH", "KHOU", "KTME", "KDTO"])
+        self.metar.setStyleSheet("background-color: rgba(255,255,255,0%)")
+        self.metar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.metar.setFont(self.metarFont)
+        self.metar.setAlignment(Qt.AlignCenter)
+        self.metar.setWordWrap(True)
+        self.vout.addWidget(self.metar)
 
         self.spacerItemLeft = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.vleft.addItem(self.spacerItemLeft)
