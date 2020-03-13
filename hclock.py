@@ -22,59 +22,26 @@ from PyQt5.QtWidgets import *
 import sys
 import time
 
-class Clock(QWidget):
+class Clock(QLabel):
     def __init__(self, parent=None):
         super(Clock, self).__init__(parent)
-        self.font = QFont("DSEG7 Classic Mini")
-        self.fontSize = 30
-        self.margin = 20
-        self.color = QColor(Qt.red)
         self.gmt = False
         self.seconds = False
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.update)
+        self.timer.timeout.connect(self.setTime)
         self.timer.start(1000)
+        self.setTime()
 
-    def getTime(self):
+    def setTime(self):
         if self.gmt:
             now = time.gmtime()
         else:
             now = time.localtime()
         if self.seconds:
-            return time.strftime("%H:%M:%S", now)
+            self.setText(time.strftime("%H:%M:%S", now))
         else:
-            return time.strftime("%H:%M", now)
-
-    def resizeEvent(self, event):
-        # Starting place for font size
-        #self.font.setPixelSize(self.height())
-        self.font.setPixelSize(self.fontSize)
-        # qm = QFontMetrics(self.font)
-        # # Allowed width
-        # # aw = self.width() - self.margin * 2
-        # aw = self.width()
-        # # # If it's too wide then resize it
-        # while qm.width(self.getTime(), -1) >= aw:
-        #     self.font.setPixelSize(self.font.pixelSize() * 0.9)
-        #     qm = QFontMetrics(self.font)
-
-
-    def paintEvent(self, event):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-
-        pen = QPen()
-        pen.setWidth(1)
-        pen.setCapStyle(Qt.FlatCap)
-        p.setPen(pen)
-
-        # Draw Value
-        pen.setColor(self.color)
-        p.setPen(pen)
-        p.setFont(self.font)
-        p.drawText(QRectF(self.rect()), self.getTime(), QTextOption(Qt.AlignCenter))
-        #p.drawRect(0,0,self.width(), self.height())
+            self.setText(time.strftime("%H:%M", now))
 
 
 class Main(QMainWindow):
@@ -96,7 +63,7 @@ class Main(QMainWindow):
         self.htop.addLayout(self.vleft)
         self.htop.addLayout(self.vright)
 
-        self.fixedFont = QFont("FreeMono", 30, QFont.Bold)
+        self.fixedFont = QFont("FreeMono", 60, QFont.Bold)
 
         self.label1 = QLabel()
         self.label1.setStyleSheet("background-color: rgba(255,255,255,0%)")
@@ -112,13 +79,18 @@ class Main(QMainWindow):
         self.label2.setText(time.strftime("GMT"))
         self.vright.addWidget(self.label2)
 
+        palette = QPalette()
+        self.clockFont = QFont("DSEG7 Classic Mini", 200, QFont.Bold)
+
         self.clock1 = Clock()
-        self.clock1.fontSize = 250
+        self.clock1.setStyleSheet("QLabel { background-color : rgba(255,255,255,0%); color : red; }")
+        self.clock1.setFont(self.clockFont)
         self.vleft.addWidget(self.clock1)
 
         self.clock2 = Clock()
         self.clock2.color = QColor(Qt.green)
-        self.clock2.fontSize = 250
+        self.clock2.setStyleSheet("QLabel { background-color : rgba(255,255,255,0%); color : green; }")
+        self.clock2.setFont(self.clockFont)
         self.clock2.gmt = True
         self.vright.addWidget(self.clock2)
 
@@ -130,7 +102,7 @@ class Main(QMainWindow):
         self.labelMetar.setFont(self.metarFont)
         self.labelMetar.setAlignment(Qt.AlignCenter)
         self.labelMetar.setWordWrap(True)
-        self.labelMetar.setText("KCLL 091753Z 17008KT 7SM -RA OVC020 20/18 A3022 RMK AO2 SLP231 P0002 60002 T02000178 10200 20183 50006")
+        self.labelMetar.setText("KCLL 091753Z 17008KT 7SM -RA OVC020 20/18 A3022 RMK AO2 SLP231 P0002 60002 T02000178 10200 20183 50006  AO2 SLP231 P0002 60002 T02000178 10200 20183 50006")
         self.vout.addWidget(self.labelMetar)
 
         self.spacerItemLeft = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
