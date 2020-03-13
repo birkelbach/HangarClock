@@ -44,13 +44,28 @@ class Clock(QLabel):
         else:
             self.setText(time.strftime("%H:%M", now))
 
+class DateLabel(QLabel):
+    def __init__(self, parent=None):
+        super(DateLabel, self).__init__(parent)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.setDate)
+        self.timer.start(1000)
+        self.setDate()
+
+    def setDate(self):
+        self.setText(time.strftime("%B %d, %Y"))
+
 class MetarList(QLabel):
     def __init__(self, station_list, timeout = 10000, parent=None):
         super(MetarList, self).__init__(parent)
-        # self.stations = []
-        # for station in station_list:
-
-        self.stationList = station_list
+        self.stations = []
+        for station in station_list:
+            d = {}
+            d["id"] = station
+            d["text"] = self.getMetar(station)
+            d["updated"] = time.time()
+            self.stations.append(d)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.setNext)
@@ -58,14 +73,21 @@ class MetarList(QLabel):
         self.nextIndex = 0
         self.setNext()
 
-    def setNext(self):
-        link = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{}.TXT".format(self.stationList[self.nextIndex])
+    def getMetar(self, id):
+        link = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{}.TXT".format(id)
         f = urllib.request.urlopen(link)
         lines = f.readlines()
-        self.setText(lines[1].decode())
+        return lines[1].decode()
+
+    def setNext(self):
+        self.setText(self.stations[self.nextIndex]["text"])
         self.nextIndex += 1
-        if self.nextIndex == len(self.stationList):
+        if self.nextIndex == len(self.stations):
             self.nextIndex = 0
+        now = time.time()
+        if now - self.stations[self.nextIndex]["updated"] > 300:
+            self.stations[self.nextIndex]["text"] = self.getMetar(self.stations[self.nextIndex]["id"])
+            self.stations[self.nextIndex]["updated"] = now
 
 
 class Main(QMainWindow):
@@ -73,7 +95,7 @@ class Main(QMainWindow):
         super(Main, self).__init__(parent)
 
         self.setObjectName("Hangar Clock")
-        #mainWindow.showFullScreen()
+        #self.showFullScreen()
         self.showMaximized()
         self.w = QWidget(self)
         self.w.setStyleSheet("QWidget { background: black; }")
@@ -120,7 +142,7 @@ class Main(QMainWindow):
 
         self.monthFont = QFont("FreeMono", 100, QFont.Bold)
 
-        self.labelDate = QLabel()
+        self.labelDate = DateLabel()
         self.labelDate.setStyleSheet("background-color: rgba(255,255,255,0%); color : blue;")
         self.labelDate.setFont(self.monthFont)
         self.labelDate.setAlignment(Qt.AlignCenter)
