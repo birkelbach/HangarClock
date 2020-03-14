@@ -154,7 +154,7 @@ class Main(QMainWindow):
         self.metarFont = QFont("FreeMono", 70, QFont.Bold)
 
         self.metar = MetarList(["KDWH", "KCLL", "KIAH", "KHOU", "KTME", "KDTO"])
-        self.metar.setStyleSheet("background-color: rgba(255,255,255,0%; color : white;)")
+        self.metar.setStyleSheet("background-color: rgba(255,255,255,0%); color : white;")
         self.metar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.metar.setFont(self.metarFont)
         self.metar.setAlignment(Qt.AlignCenter)
