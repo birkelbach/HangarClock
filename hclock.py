@@ -74,10 +74,13 @@ class MetarList(QLabel):
         self.setNext()
 
     def getMetar(self, id):
-        link = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{}.TXT".format(id)
-        f = urllib.request.urlopen(link)
-        lines = f.readlines()
-        return lines[1].decode()
+        try:
+            link = "https://tgftp.nws.noaa.gov/data/observations/metar/stations/{}.TXT".format(id)
+            f = urllib.request.urlopen(link)
+            lines = f.readlines()
+            return lines[1].decode()
+        except:
+            return "{} ****".format(id)
 
     def setNext(self):
         self.setText(self.stations[self.nextIndex]["text"])
