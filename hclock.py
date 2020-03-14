@@ -112,14 +112,14 @@ class Main(QMainWindow):
         self.fixedFont = QFont("FreeMono", 60, QFont.Bold)
 
         self.label1 = QLabel()
-        self.label1.setStyleSheet("background-color: rgba(255,255,255,0%)")
+        self.label1.setStyleSheet("background-color: rgba(255,255,255,0%); color : white;")
         self.label1.setFont(self.fixedFont)
         self.label1.setAlignment(Qt.AlignCenter)
         self.label1.setText(time.strftime("%Z"))
         self.vleft.addWidget(self.label1)
 
         self.label2 = QLabel()
-        self.label2.setStyleSheet("background-color: rgba(255,255,255,0%)")
+        self.label2.setStyleSheet("background-color: rgba(255,255,255,0%); color : white;")
         self.label2.setFont(self.fixedFont)
         self.label2.setAlignment(Qt.AlignCenter)
         self.label2.setText(time.strftime("GMT"))
@@ -154,7 +154,7 @@ class Main(QMainWindow):
         self.metarFont = QFont("FreeMono", 70, QFont.Bold)
 
         self.metar = MetarList(["KDWH", "KCLL", "KIAH", "KHOU", "KTME", "KDTO"])
-        self.metar.setStyleSheet("background-color: rgba(255,255,255,0%)")
+        self.metar.setStyleSheet("background-color: rgba(255,255,255,0%; color : white;)")
         self.metar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.metar.setFont(self.metarFont)
         self.metar.setAlignment(Qt.AlignCenter)
