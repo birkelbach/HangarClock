@@ -29,12 +29,9 @@ class Clock(QLabel):
         self.gmt = False
         self.seconds = False
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.setTime)
-        self.timer.start(1000)
-        self.setTime()
+        self.startTimer(1000)
 
-    def setTime(self):
+    def timerEvent(self, e):
         if self.gmt:
             now = time.gmtime()
         else:
@@ -48,12 +45,9 @@ class DateLabel(QLabel):
     def __init__(self, parent=None):
         super(DateLabel, self).__init__(parent)
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.setDate)
-        self.timer.start(1000)
-        self.setDate()
+        self.startTimer(1000)
 
-    def setDate(self):
+    def timerEvent(self, e):
         self.setText(time.strftime("%B %d, %Y"))
 
 class MetarList(QLabel):
@@ -67,11 +61,9 @@ class MetarList(QLabel):
             d["updated"] = time.time()
             self.stations.append(d)
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.setNext)
-        self.timer.start(timeout)
         self.nextIndex = 0
-        self.setNext()
+        self.startTimer(timeout)
+        self.timerEvent(None)
 
     def getMetar(self, id):
         try:
@@ -82,7 +74,7 @@ class MetarList(QLabel):
         except:
             return "{} ****".format(id)
 
-    def setNext(self):
+    def timerEvent(self, e):
         self.setText(self.stations[self.nextIndex]["text"])
         self.nextIndex += 1
         if self.nextIndex == len(self.stations):
